@@ -73,3 +73,68 @@ overflow-checks = true
     `HashSet<T>` = `LookupSet<T>`
     `HashSet<T>` = `UnorderedSet<T>`
 
+    **persistent collections:**
+    UnorderedMap, UnorderedSet, TreeMap, Vector, LazyOption
+    When use the persistent collection, the prefix must be constructed like:
+    `UnorderedMap::new(b"a"), LookupMap::new(b"t"), LazyOption::new(b"m")`
+
+- #### Contract Interface
+  - ##### Public Method and trait implementations
+        Methods can be called externally by using the pub identifier and you can mark the function as public but add the #[private] annotation so that it will panic if called from anything but the contract itself.
+        ```
+        #[near_bindgen]
+        impl MyContractStructure {
+            pub fn some_method(&mut self) {
+                // .. method logic here
+            }
+        }
+        ```
+
+        Functions can also be exposed through trait implementations. `#[near_bindgen]` macro only needs to be attached to the trait implementation, not the trait itself:
+        '''
+        pub trait MyTrait {
+            fn trait_method(&mut self);
+        }
+
+        #[near_bindgen]
+        impl MyTrait for MyContractStructure {
+            fn trait_method(&mut self) {
+                // .. method logic here
+            }
+        }
+        ```
+
+  - ##### Contract Mutability
+        Contract state mutability is handled automatically based on how `self` is used in the function parameters. The `#[near_bindgen]` macro will generate the respective code to load/deserialize state for any function which uses `self` and serialize/store state only for when `&mut self` is used.
+
+        Read-Only Functions: use `self` or `self` as a parameter
+        self (owned value): shift ownership and can avoid by using `Clone/Copy`
+        &self (immutable reference): the contract state is only read and value can re-used
+        Returning derived data: retuen some data like: `fn update_stats(&self, account_id: AccountId, score: U64) -> Account `
+        Mutable Functions: load the existing state, modify, then rewriting state `fn modify_value(&mut self, new_value: u64) {self.integer = new_value;}`
+        Pure Functions: functions do not use self at all `fn log_u64(value: u64) {near_sdk::log!("{}", value);}` and `fn return_static_u64() -> u64 {SOME_VALUE}`
+
+  - ##### Private Methods
+        **Using callbacks:**
+        Contract has to have a callback for a remote cross-contract call, and we can avoid it using `#[private]` this callback method should only be called by the contract itself. Use `#[private]` annotation within the `near_bindgen` macro:
+
+        **internal methods:**
+        There are three approaches to write internal methods that can not access outside
+        1. Using `fn` instead of `pub fn`
+        2. Using `pub(crate) fn`.
+        3. Separate impl block
+        ```
+        #[near_bindgen]
+        impl Contract {
+            pub fn increment(&mut self) {
+                self.internal_increment();
+            }
+        }
+        impl Contract {
+            /// This methods is still not exported.
+            pub fn internal_increment(&mut self) {
+                self.counter += 1;
+            }
+        }
+        ```
+
