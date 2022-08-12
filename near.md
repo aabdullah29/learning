@@ -2,14 +2,14 @@ This repository is for to start the learning about Near Blockchain
 
 For more help check: [Near SDK Doc](https://www.near-sdk.io/) and [SDk](https://docs.rs/near-sdk/latest/near_sdk/index.html) 
 
-### Install Rust and Wasm toolchain
+## Install Rust and Wasm toolchain
 ```
 curl --proto '=https' --tlsv1.2 https://sh.rustup.rs -sSf | sh
 source $HOME/.cargo/env
 rustup target add wasm32-unknown-unknown
 ```
 
-### Create new project
+## Create new project
 `npx create-near-app --contract=rust my-project`
 
 Install cargo-generate for work on existing projetc that can be on github
@@ -36,7 +36,7 @@ panic = "abort"
 overflow-checks = true
 ```
 
-### Importents things
+## Importents things
 - #### near_bindgen
     The `#[near_bindgen]` macro used on struct and struct `impl` to be a valid NEAR contract and expose the intended functions to be able to be called externally
 
