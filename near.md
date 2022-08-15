@@ -138,3 +138,93 @@ overflow-checks = true
         }
         ```
 
+  - ##### Payable Methods
+        To declare a method as payable, use the `#[payable]` annotation within the `near_bindgen` macro. By default the methods are not payable and they will panic if someone will attempt to transfer tokens.
+
+  - ##### Serialization Protocols
+        Near use default JSON and Borsh for serialization. In general, JSON will be used for contract calls and cross-contract calls, where Borsh can be used to optimize using less gas by having smaller parameter serialization and less deserialization computation within the contract.
+
+        - ##### Overriding Serialization Protocol Default: 
+            ```
+            #[derive(BorshDeserialize, BorshSerialize)]
+            pub struct SetMessageInput {
+                // Note that the key does not have to be "message" like the argument name.
+                msg: String,
+            }
+            ```
+
+        - ##### JSON wrapper types: 
+            To help with serializing certain types to JSON which have unexpected or inefficient default formats, there are some wrapper types in `near_sdk::json_types` that can be used.
+
+        - ##### Base64VecU8:
+            Another example of a type you may want to override the default serialization of is `Vec<u8>` which represents bytes in Rust. By default, this will serialize as an array of integers, which is not compact and very hard to use. There is a wrapper type `Base64VecU8` which serializes and deserializes to a `Base-64` string for more compact JSON serialization.
+
+
+- #### cross-contract
+    - ##### Callbacks:
+        When interacting with a native Rust (compiled to Wasm) smart contract, cross-contract calls are asynchronous. Callbacks are used to either get the result of a cross-contract call or tell if a cross-contract call has succeeded or failed. There are two techniques to write cross-contract calls: high-level and low-level. 
+        `#[ext_contract(trait_name)]` example:
+        ```
+        #[ext_contract(ext_calculator)]
+        trait Calculator {
+            fn mult(&self, a: U64, b: U64) -> U128;
+        }
+        ```
+        Let's assume the calculator is deployed on `calc.near`, we can use it `ext_calculator::ext("calc.near".parse().unwrap()).sum(2, 3)`
+        ```
+        #[near_bindgen]
+        impl Contract {
+            pub fn sum_a_b(&mut self, a: U128, b: U128) -> Promise {
+                let calculator_account_id: AccountId = "calc.near".parse().unwrap();
+                // Call the method `sum` on the calculator contract.
+                // Any unused GAS will be attached since the default GAS weight is 1. Attached deposit is defaulted to 0.
+                ext_calculator::ext(calculator_account_id)
+                    .sum(a, b)
+            }
+        }
+        ```
+
+    - ##### .then:
+        The common pattern with cross-contract calls is to call a method on an external smart contract, use .then syntax to specify a callback, and then retrieve the result or status of the promise. The callback will typically live inside the same, calling smart contract. 
+        We'll show two simple functions that will make a cross-contract call to an allowlist smart contract, asking if the account `assount-deployed-name` is allowlisted. These methods will both return true using different approaches 
+        1.`#[callback_unwrap]` we can use this approach by `callback_promise_result()` method:
+        ```
+        #[private]
+        pub fn callback_arg_macro(#[callback_unwrap] val: bool) -> bool {
+            val
+        }
+        ```
+
+        2.`#[callback_result]` we can use this approach by `callback_arg_macro()` method:
+        ```
+        #[private]
+        pub fn callback_promise_result() -> bool {
+            assert_eq!(env::promise_results_count(), 1, "ERR_TOO_MANY_RESULTS");
+            match env::promise_result(0) {
+                PromiseResult::NotReady => unreachable!(),
+                PromiseResult::Successful(val) => {
+                    if let Ok(is_allowlisted) = near_sdk::serde_json::from_slice::<bool>(&val) {
+                        is_allowlisted
+                    } else {
+                        env::panic_str("ERR_WRONG_VAL_RECEIVED")
+                    }
+                },
+                PromiseResult::Failed => env::panic_str("ERR_CALL_FAILED"),
+            }
+        }
+        ```
+
+        The first method uses a macro on the argument to cast the value into what's desired. In this approach, if the value is unable to be casted, it will panic. If you'd like to gracefully handle the error, you can either use the first approach, or use the `#[callback_result]` macro instead. An example of this can be seen below:
+        ```
+        #[private]
+        pub fn handle_callbacks(
+            // New pattern, will gracefully handle failed callback results
+            #[callback_result] b: Result<u8, near_sdk::PromiseError>,
+        ) {
+            if b.is_err() {
+                // ...
+            }
+        }
+        ```
+
+- #### Promises
