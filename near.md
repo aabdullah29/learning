@@ -228,3 +228,84 @@ overflow-checks = true
         ```
 
 - #### Promises
+    Transactions can be sent asynchronously from a contract through a [`Promise`](https://docs.rs/near-sdk/latest/near_sdk/struct.Promise.html). This will cause code to be executed in the `future`. Few situations where Promises are uniquely capable:
+
+    1. ##### Sending $NEAR
+        Transferring NEAR tokens is the simplest transaction you can send from a smart contract using `Promise`.
+        ```
+        let amount: u128 = 1_000_000_000_000_000_000_000_000; // 1 $NEAR as yoctoNEAR
+        let account_id: AccountId = "example.near".parse().unwrap();
+        Promise::new(account_id).transfer(amount);
+        ```
+
+    2. ##### Creating accounts
+        You might want to create an account from a contract for many reasons that can be done by using `Promise` and an account with no balance is almost unusable, you probably want to combine this with the token transfer.
+        ```
+        Promise::new("subaccount.example.near".parse().unwrap())
+        .create_account()
+        .add_full_access_key(env::signer_account_pk())
+        .transfer(250_000_000_000_000_000_000_000); // 2.5e23yN, 0.25N
+        ```
+
+    3. ##### Deploying contracts
+        You might want your smart contract to deploy subsequent smart contract code.
+        ```
+        const CODE: &[u8] = include_bytes!("./path/to/compiled.wasm");
+        Promise::new("subaccount.example.near".parse().unwrap())
+            .create_account()
+            .add_full_access_key(env::signer_account_pk())
+            .transfer(3_000_000_000_000_000_000_000_000) // 3e24yN, 3N
+            .deploy_contract(CODE.to_vec())
+        ```
+
+- #### Testing
+    Testing contract functionality can be done through the cargo test framework. These tests will run with a mocked blockchain and will allow testing function calls directly without having to set up/deploy to a network and sign serialized transactions on this network.
+    
+    ##### Unit Tests
+    Use `VMContextBuilder` to allows for modifying the context of the mocked blockchain.
+    The `testing_env!` macro will initialize the blockchain interface with the `VMContext` which is either initialized through `VMContextBuilder` or manually through itself.
+    To test `read-only` function calls, set `is_view` to `true` on the `VMContext`. 
+
+    ##### Integration Tests
+    You'll probably want to use integration tests when:
+
+    - There are cross-contract calls.
+    - There are multiple users with balance changes.
+    - You'd like to gather information about gas usage and execution outcomes on-chain.
+    - You want to assert the use-case execution flow of your smart contract logic works as expected.
+    - You want to assert given execution patterns do not work (as expected).  
+
+    **Setup:** 
+    Unlike unit tests (which would often live in the `src/lib.rs` file of the contract), integration tests in Rust are located in a separate directory at the same level as `/src`, called `/tests`.
+    Find more detail and examples [here](https://www.near-sdk.io/testing/integration-tests).
+
+    ##### Simulation Testing to Workspaces
+    We use asynchronous call because in simulation function calls return values that implement Future trait. We can use [tokio](https://tokio.rs/), [async-std](https://async.rs/) and [smol](https://github.com/smol-rs/smol) for asynchronous and use [sandbox](https://github.com/near/sandbox) for local blockchain which we will use in testing.
+    Find more detail and examples [here](https://www.near-sdk.io/testing/workspaces-migration-guide).
+
+
+- #### Building Contracts
+    **Build Smart Contract in wasm:** `cargo build --target wasm32-unknown-unknown --release`
+    Mention the root of project in `cargo.toml` if we build multiple contract in one project
+    and we can set custom flas's in `cargo,toml` like:
+    ```
+    [target.wasm32-unknown-unknown]
+    rustflags = ["-C", "link-arg=-s"]
+    ```
+
+- #### Upgrading Contracts
+    When you do some change in exixting contract then you can re-deploy it, there are some different situation for re-deploy the contract for detail you can visit the [link](https://www.near-sdk.io/upgrading/prototyping).
+
+- #### Reducing Contract Size
+    We can reduse the `wasm` file size with the help of following tips:
+    use `env::panic(b"ERR_NOT_OWNER")` instead of `assert_eq!(a,b,"message")`
+    use `option.unwrap_or_else(|| env::panic_str("Token not found"))` instead of  `Option.expect("Token not found")`
+    use `env::panic_str("ERR_MSG_HERE")` instead of `panic!("ERR_MSG_HERE")`
+
+- #### Best Practices
+    use `require!` early in any function: `require!(env::predecessor_account_id() == self.owner_id, "Owner's method")`
+    use `log!` for debug: `log!("Transferred {} tokens from {} to {}", amount, sender_id, receiver_id)` or
+    `env::log_str(format!("Transferred {} tokens from {} to {}", amount, sender_id, receiver_id).as_ref())`
+    use `Promise` if your method makes a cross-contract call: `pub fn withdraw_100(&mut self, receiver_id: AccountId) -> Promise {...}`
+    use again and again `borsh`, `base64`, `bs58`, `serde`, `serde_json` from `near-sdk`
+
