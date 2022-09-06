@@ -1,6 +1,6 @@
 This repository is for to start the learning about Near Blockchain
 
-For more help check: [Near SDK Doc](https://www.near-sdk.io/) and [SDk](https://docs.rs/near-sdk/latest/near_sdk/index.html) 
+For more help check: [Near SDK Doc](https://www.near-sdk.io/) and [SDk](https://docs.rs/near-sdk/latest/near_sdk/index.html) <br>
 For better understanding explore the [NFT Project](https://github.com/aabdullah29/near-nft-tutorial)
 
 ## Install Rust and Wasm toolchain
