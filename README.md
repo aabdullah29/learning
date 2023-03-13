@@ -1,5 +1,3 @@
-This repository is for to start the learning about Near Blockchain
-
 ### [react-native](./react-native.md)
 ### [Blockchain](./blockchain.md)
 ### [Ethereum](./ethereum.md)
