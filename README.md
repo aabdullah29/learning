@@ -6,4 +6,5 @@
 ### [Near](./near.md)
 ### [Substrate](./substrate.md)
 ### [Git](./git.md)
+### [VS Code](./vs-code.md)
 
