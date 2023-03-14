@@ -9,6 +9,7 @@ rm -rfv "$HOME/Library/Saved Application State/com.microsoft.VSCode.savedState"
 ```
 
 ### User settings location :
+[link](https://stackoverflow.com/questions/71838032/how-to-remove-the-visual-studio-code-cloud-settings-from-github)
 - Windows: %APPDATA%\Code\User
 - macOS: $HOME/Library/Application\ Support/Code/User
 - Linux: $HOME/.config/Code/User
