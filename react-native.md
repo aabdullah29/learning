@@ -1,3 +1,5 @@
+
+## create new project
 `npx react-native init [projecr-name]`
 
 `npm start` or `npx react-native start`
@@ -6,7 +8,7 @@
 
 
 
-### for android emulator:
+## for android emulator:
 install android studio and create virtual devise and add enviorment path is:
 
 `nano ~/.zprofile` or `nano ~/.zshrc`
@@ -17,7 +19,7 @@ export PATH=$PATH:$ANDROID_HOME/emulator
 export PATH=$PATH:$ANDROID_HOME/platform-tools
 ```
 
-### for ios simulator:
+## for ios simulator:
 install ruby, Xcode and CocoaPods
 
 if clone a repo then install CocoaPods:
@@ -42,4 +44,11 @@ use for installing the ios or CocoaPods dependencies and its use ruby or gem rep
 use for handle the CocoaPods or ios dependency it's work as packeg.json work in node.
 
 
+## [adb-commands](https://gist.github.com/ernestkamara/d0a11cc36f331ebb8a41aa36991eee9a)
 
+
+## android build
+```
+cd android
+./gradlew assembleRelease
+```
