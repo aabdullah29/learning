@@ -52,3 +52,6 @@ use for handle the CocoaPods or ios dependency it's work as packeg.json work in 
 cd android
 ./gradlew assembleRelease
 ```
+
+build path: `[project root]/android/app/build/outputs/apk/release/app-release.apk` 
+
