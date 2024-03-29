@@ -43,20 +43,26 @@ use for installing the ios or CocoaPods dependencies and its use ruby or gem rep
 #### Podfile and Podfile.lock
 use for handle the CocoaPods or ios dependency it's work as packeg.json work in node.
 
-#### for run specific simulator 
+## for run specific simulator and android build
 - add this into packeg.json
 ```
-"ios-15": "react-native run-ios --simulator=`iPhone 15`",
+    "android": "react-native run-android",
+    "androidBuild" : "cd android && ./gradlew assembleRelease cd ..",
+    "ios": "react-native run-ios --simulator=`iPhone 14",
+    "ios15": "react-native run-ios --simulator=`iPhone 15`",
+    "start": "react-native start",
+    "pod-install": "cd ios && RCT_NEW_ARCH_ENABLED=1 bundle exec pod install && cd .."
 ```
 
-## [adb-commands](https://gist.github.com/ernestkamara/d0a11cc36f331ebb8a41aa36991eee9a)
-## [auto-link](https://github.com/react-native-community/cli/blob/main/docs/autolinking.md)
-
-## android build
+#### android build and path
 ```
 cd android
 ./gradlew assembleRelease
 ```
 
 build path: `[project root]/android/app/build/outputs/apk/release/app-release.apk` 
+
+## [adb-commands](https://gist.github.com/ernestkamara/d0a11cc36f331ebb8a41aa36991eee9a)
+## [auto-link](https://github.com/react-native-community/cli/blob/main/docs/autolinking.md)
+
 
