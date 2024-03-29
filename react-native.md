@@ -47,7 +47,7 @@ use for handle the CocoaPods or ios dependency it's work as packeg.json work in 
 - add this into packeg.json :scripts
 ```
 "android": "react-native run-android",
-"androidBuild" : "cd android && ./gradlew assembleRelease cd ..",
+"androidBuild" : "cd android && ./gradlew assembleRelease && cd ..",
 "ios": "react-native run-ios --simulator=`iPhone 14",
 "ios15": "react-native run-ios --simulator=`iPhone 15`",
 "start": "react-native start",
