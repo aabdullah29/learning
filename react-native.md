@@ -44,14 +44,14 @@ use for installing the ios or CocoaPods dependencies and its use ruby or gem rep
 use for handle the CocoaPods or ios dependency it's work as packeg.json work in node.
 
 ## for run specific simulator and android build
-- add this into packeg.json
+- add this into packeg.json :scripts
 ```
-    "android": "react-native run-android",
-    "androidBuild" : "cd android && ./gradlew assembleRelease cd ..",
-    "ios": "react-native run-ios --simulator=`iPhone 14",
-    "ios15": "react-native run-ios --simulator=`iPhone 15`",
-    "start": "react-native start",
-    "pod-install": "cd ios && RCT_NEW_ARCH_ENABLED=1 bundle exec pod install && cd .."
+"android": "react-native run-android",
+"androidBuild" : "cd android && ./gradlew assembleRelease cd ..",
+"ios": "react-native run-ios --simulator=`iPhone 14",
+"ios15": "react-native run-ios --simulator=`iPhone 15`",
+"start": "react-native start",
+"pod-install": "cd ios && RCT_NEW_ARCH_ENABLED=1 bundle exec pod install && cd .."
 ```
 
 #### android build and path
