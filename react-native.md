@@ -45,7 +45,9 @@ use for handle the CocoaPods or ios dependency it's work as packeg.json work in 
 
 #### for run specific simulator 
 - add this into packeg.json
-`"ios-15": "react-native run-ios --simulator=`iPhone 15`",`
+```
+"ios-15": "react-native run-ios --simulator=`iPhone 15`",
+```
 
 ## [adb-commands](https://gist.github.com/ernestkamara/d0a11cc36f331ebb8a41aa36991eee9a)
 ## [auto-link](https://github.com/react-native-community/cli/blob/main/docs/autolinking.md)
